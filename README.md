@@ -55,6 +55,11 @@ requirements.txt
 README.md  
 
 ---
+## Preview
+![Expense Tracker UI](https://github.com/user-attachments/assets/86825ea8-8dbc-49c2-bf25-7df0d978a503)
+![Expense Tracker UI](https://github.com/user-attachments/assets/a456938f-9c69-4382-9242-3b2c342ea3e4)
 
+
+---
 ## Author
 Nanditha A
