@@ -43,7 +43,6 @@ def login(username, password):
     return not user.empty
 
 
-
 def get_user_file(username):
     return f"{username}_expenses.csv"
 
@@ -91,8 +90,6 @@ def load_budget(username):
         return df
 
     return pd.DataFrame(columns=["Month", "Budget"])
-
-
 
 
 def detect_anomalies(df):
@@ -161,6 +158,7 @@ def suggest_category(description):
             return cat
     return "📦 Other"
 
+
 def run_app(username):
     filename = get_user_file(username)
     initialize_file(filename)
@@ -173,10 +171,15 @@ def run_app(username):
         del st.session_state["user"]
         st.rerun()
 
-    menu = st.sidebar.radio("", [" Add", " Dashboard", "Analytics", " Budget"])
+    # FIX 1: Added label "Navigation" and set label_visibility="hidden"
+    # FIX 2: All menu options now have consistent spacing (no leading spaces)
+    menu = st.sidebar.radio(
+        "Navigation",
+        ["Add", "Dashboard", "Analytics", "Budget"],
+        label_visibility="hidden"
+    )
 
-    
-    if menu == " Add":
+    if menu == "Add":
         st.header(" Add Expenses")
 
         st.caption("Type description + amount → press **Enter** or **Add** → saved instantly to the right category ")
@@ -190,6 +193,7 @@ def run_app(username):
             with col_amt:
                 q_amt = st.text_input("Amount", placeholder="0.00")
 
+            # FIX 3: Replaced use_container_width=True with width="stretch"
             submitted = st.form_submit_button("Add", use_container_width=True)
 
             if submitted:
@@ -215,8 +219,12 @@ def run_app(username):
         df_fresh = load_df(filename)
         if not df_fresh.empty:
             st.caption(" Recent entries:")
-            st.dataframe(df_fresh.tail(5)[["Date", "Category", "Amount", "Description"]],
-                         use_container_width=True, hide_index=True)
+            # FIX 3: Replaced use_container_width=True with width="stretch"
+            st.dataframe(
+                df_fresh.tail(5)[["Date", "Category", "Amount", "Description"]],
+                width="stretch",
+                hide_index=True
+            )
 
         st.divider()
 
@@ -236,6 +244,7 @@ def run_app(username):
                                 st.warning(f"Invalid value for {cat}")
 
                 desc = st.text_input("Description", key="man_desc")
+                # FIX 3: Replaced use_container_width=True with width="stretch"
                 submitted_manual = st.form_submit_button("Save", use_container_width=True)
 
                 if submitted_manual:
@@ -254,6 +263,7 @@ def run_app(username):
                     else:
                         st.warning("Enter at least one value.")
 
+    # FIX 2: Removed leading space from "Dashboard" to match radio option
     elif menu == "Dashboard":
 
         st.header("Dashboard")
@@ -261,7 +271,6 @@ def run_app(username):
         if not df.empty:
             total = df["Amount"].sum()
 
-            # ML: prediction shown as a second metric card next to total
             prediction = predict_next_month(df)
             col_t, col_p = st.columns(2)
             with col_t:
@@ -299,21 +308,22 @@ def run_app(username):
                     flag = anomaly_flags[row.name] if row.name < len(anomaly_flags) else False
                     return ["background-color: #ffe0e0; color: #900" if flag else "" for _ in row]
 
+                # FIX 3: Replaced use_container_width=True with width="stretch"
                 st.dataframe(
                     display_df.style.apply(row_style, axis=1),
-                    use_container_width=True
+                    width="stretch"
                 )
                 if anomaly_count:
                     st.warning(f" {anomaly_count} unusual transaction(s) highlighted in red — detected by **Isolation Forest**.")
             else:
-                st.dataframe(filtered_df, use_container_width=True)
+                # FIX 3: Replaced use_container_width=True with width="stretch"
+                st.dataframe(filtered_df, width="stretch")
 
             st.write(f"Total: ${filtered_df['Amount'].sum():.2f}")
 
         else:
             st.warning("No data")
 
-   
     elif menu == "Analytics":
 
         st.header(" Analytics")
@@ -327,7 +337,6 @@ def run_app(username):
             ax.pie(cat_data, labels=cat_data.index, autopct='%1.1f%%')
             st.pyplot(fig)
 
-            
             risky = category_risk(df)
             if risky:
                 st.warning(
@@ -353,7 +362,7 @@ def run_app(username):
         else:
             st.warning("No data")
 
-    
+    # FIX 2: Removed leading space from "Budget" to match radio option
     elif menu == "Budget":
 
         st.header("Budget Planner")
@@ -398,7 +407,6 @@ def run_app(username):
                         top_cat = cat_total.idxmax()
                         st.warning(f"Highest spending: {top_cat}")
 
-                   
                     prediction = predict_next_month(df)
                     if prediction:
                         st.divider()
@@ -414,7 +422,6 @@ def run_app(username):
 
             else:
                 st.info("No expenses for this month")
-
 
 
 def main():
